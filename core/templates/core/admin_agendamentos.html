@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+{% block title %}Painel Admin — Agendamentos{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Painel do Administrador</h5>
+    <div class="btn-group btn-group-sm">
+      <a href="?status=pendente"
+         class="btn {% if status_filtro == 'pendente' %}btn-warning text-dark{% else %}btn-outline-light{% endif %}">
+        <i class="bi bi-hourglass-split"></i> Pendentes
+      </a>
+      <a href="?status=aceito"
+         class="btn {% if status_filtro == 'aceito' %}btn-success{% else %}btn-outline-light{% endif %}">
+        <i class="bi bi-check-circle"></i> Aceitos
+      </a>
+      <a href="?status=recusado"
+         class="btn {% if status_filtro == 'recusado' %}btn-danger{% else %}btn-outline-light{% endif %}">
+        <i class="bi bi-x-circle"></i> Recusados
+      </a>
+      <a href="?status=cancelado"
+         class="btn {% if status_filtro == 'cancelado' %}btn-secondary{% else %}btn-outline-light{% endif %}">
+        <i class="bi bi-slash-circle"></i> Cancelados
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    {% if agendamentos %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Usuário</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Motivo</th>
+            <th>Solicitado em</th>
+            <th>Status</th>
+            <th style="min-width:180px">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ag in agendamentos %}
+          <tr>
+            <td>
+              <div class="fw-semibold">{{ ag.usuario.get_full_name|default:ag.usuario.username }}</div>
+              <small class="text-muted">@{{ ag.usuario.username }}</small>
+            </td>
+            <td class="fw-semibold">{{ ag.data|date:"d/m/Y" }}</td>
+            <td>
+              <span class="badge bg-light text-dark border">
+                {{ ag.hora_inicio|time:"H:i" }} – {{ ag.hora_fim|time:"H:i" }}
+              </span>
+            </td>
+            <td>
+              <span title="{{ ag.descricao }}">
+                {{ ag.descricao|default:"—"|truncatechars:45 }}
+              </span>
+            </td>
+            <td><small class="text-muted">{{ ag.criado_em|date:"d/m/Y H:i" }}</small></td>
+            <td>
+              <span class="badge
+                {% if ag.status == 'pendente' %}bg-warning text-dark
+                {% elif ag.status == 'aceito' %}bg-success
+                {% elif ag.status == 'recusado' %}bg-danger
+                {% else %}bg-secondary{% endif %}">
+                {{ ag.get_status_display }}
+              </span>
+            </td>
+            <td>
+              {% if ag.status == 'pendente' %}
+              <div class="d-flex gap-1">
+                <!-- Aceitar -->
+                <form method="post" action="{% url 'admin_acao' ag.pk 'aceitar' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success"
+                          onclick="return confirm('Aceitar agendamento de {{ ag.usuario.get_full_name|default:ag.usuario.username }}?')">
+                    <i class="bi bi-check-lg"></i> Aceitar
+                  </button>
+                </form>
+                <!-- Recusar com modal -->
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-bs-toggle="modal" data-bs-target="#modalRecusar{{ ag.pk }}">
+                  <i class="bi bi-x-lg"></i> Recusar
+                </button>
+              </div>
+
+              <!-- Modal recusar -->
+              <div class="modal fade" id="modalRecusar{{ ag.pk }}" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h6 class="modal-title"><i class="bi bi-x-circle"></i> Recusar Agendamento</h6>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'admin_acao' ag.pk 'recusar' %}">
+                      {% csrf_token %}
+                      <div class="modal-body">
+                        <p class="mb-1">
+                          <strong>Usuário:</strong> {{ ag.usuario.get_full_name|default:ag.usuario.username }}<br>
+                          <strong>Data/Hora:</strong> {{ ag.data|date:"d/m/Y" }} às {{ ag.hora_inicio|time:"H:i" }}
+                        </p>
+                        <div class="mt-3">
+                          <label class="form-label fw-semibold">Motivo da recusa (opcional):</label>
+                          <textarea name="observacao" class="form-control" rows="3"
+                                    placeholder="Informe o motivo para o usuário..."></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-x"></i> Confirmar Recusa</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              {% else %}
+              <span class="text-muted small">—</span>
+              {% if ag.observacao_admin %}
+              <br><small class="text-muted"><i class="bi bi-chat-left-text"></i> {{ ag.observacao_admin|truncatechars:30 }}</small>
+              {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-inbox fs-1"></i>
+      <p class="mt-2">Nenhum agendamento com status <strong>{{ status_filtro }}</strong>.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

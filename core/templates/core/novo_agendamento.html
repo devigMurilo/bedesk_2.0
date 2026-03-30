@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+{% block title %}Novo Agendamento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-plus"></i> Solicitar Agendamento</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info small">
+                    <i class="bi bi-info-circle"></i>
+                    Após solicitar, seu agendamento ficará <strong>pendente</strong> até ser confirmado pelo administrador.
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.data.label }}</label>
+                        {{ form.data }}
+                        {% if form.data.errors %}<div class="text-danger small">{{ form.data.errors }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.horario.label }}</label>
+                        {{ form.horario }}
+                        {% if form.horario.errors %}<div class="text-danger small">{{ form.horario.errors }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.descricao.label }}</label>
+                        {{ form.descricao }}
+                    </div>
+
+                    <!-- Tabela de referência resumida -->
+                    <details class="mb-3">
+                        <summary class="text-primary fw-semibold small" style="cursor:pointer">
+                            <i class="bi bi-table"></i> Ver horários disponíveis (referência)
+                        </summary>
+                        <div class="table-responsive mt-2">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-dark">
+                                    <tr><th>Slot</th><th>Horário</th><th>Bloco</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for inicio, fim in slots %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ inicio|time:"H:i" }} – {{ fim|time:"H:i" }}</td>
+                                        <td>
+                                            {% if inicio.hour < 12 %}Manhã{% else %}Tarde{% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Enviar Solicitação
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Pré-preenche data e hora a partir da query string
+const params = new URLSearchParams(window.location.search);
+if (params.get('data')) {
+    document.querySelector('[name=data]').value = params.get('data');
+}
+</script>
+{% endblock %}
