@@ -90,7 +90,7 @@ class PostagemBlog(models.Model):
     resumo = models.TextField()
     conteudo = models.TextField()
     imagem = models.URLField(blank=True, verbose_name='URL da imagem de capa')
-    imagem_arquivo = models.FileField(upload_to='blog/capas/', blank=True, verbose_name='Arquivo da imagem de capa')
+    imagem_arquivo = models.ImageField(upload_to='blog/capas/', blank=True, verbose_name='Arquivo da imagem de capa')
     autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='postagens_blog')
     destaque = models.BooleanField(default=False)
     publicado = models.BooleanField(default=True)
