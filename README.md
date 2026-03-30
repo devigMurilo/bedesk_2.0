@@ -9,17 +9,17 @@
 
 
 # 1. Instalar dependências
-pip install django
+- pip install django
 
 # 2. Criar as tabelas do banco de dados
-python manage.py migrate
+- python manage.py migrate
 
 # 3. Criar o superusuário (administrador)
-python manage.py createsuperuser
+- python manage.py createsuperuser
 
 # 4. Iniciar o servidor
-python manage.py runserver
-```
+- python manage.py runserver
+
 
 Acesse: http://localhost:8000
 
