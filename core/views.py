@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import date
 
-from .models import Agendamento, gerar_horarios_disponiveis, INTERVALOS_BLOQUEADOS, HORA_INICIO, HORA_FIM
-from .forms import AgendamentoForm, PerfilForm, RegistroForm
+from .models import Agendamento, PostagemBlog, gerar_horarios_disponiveis, INTERVALOS_BLOQUEADOS, HORA_INICIO, HORA_FIM
+from .forms import AgendamentoForm, PerfilForm, RegistroForm, PostagemBlogForm
 
 
 def is_admin(user):
@@ -92,6 +92,25 @@ def home_view(request):
     })
 
 
+@login_required
+def blog_view(request):
+    posts = list(
+        PostagemBlog.objects.filter(publicado=True).select_related('autor')
+    )
+    post_destaque = next((post for post in posts if post.destaque), posts[0] if posts else None)
+    categorias = (
+        PostagemBlog.objects.filter(publicado=True)
+        .values_list('categoria', flat=True)
+        .distinct()
+    )
+
+    return render(request, 'core/blog.html', {
+        'posts': posts,
+        'post_destaque': post_destaque,
+        'categorias_blog': categorias,
+    })
+
+
 # ─── Agendamento ───────────────────────────────────────────────
 
 @login_required
@@ -157,9 +176,22 @@ def perfil_view(request):
 def admin_agendamentos_view(request):
     status_filtro = request.GET.get('status', 'pendente')
     agendamentos = Agendamento.objects.filter(status=status_filtro).select_related('usuario').order_by('data', 'hora_inicio')
+    post_form = PostagemBlogForm(request.POST or None, request.FILES or None)
+
+    if request.method == 'POST':
+        if post_form.is_valid():
+            postagem = post_form.save(commit=False)
+            postagem.autor = request.user
+            postagem.save()
+            messages.success(request, 'Postagem criada com sucesso.')
+            return redirect('admin_agendamentos')
+        messages.error(request, 'Nao foi possivel criar a postagem. Verifique os campos do formulario.')
+
     return render(request, 'core/admin_agendamentos.html', {
         'agendamentos': agendamentos,
         'status_filtro': status_filtro,
+        'post_form': post_form,
+        'postagens_recentes': PostagemBlog.objects.select_related('autor')[:5],
     })
 
 

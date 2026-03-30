@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Agendamento
+from .models import Agendamento, PostagemBlog
 from datetime import date
 
 
@@ -76,3 +76,42 @@ class PerfilForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class PostagemBlogForm(forms.ModelForm):
+    class Meta:
+        model = PostagemBlog
+        fields = ['titulo', 'categoria', 'resumo', 'conteudo', 'imagem', 'imagem_arquivo', 'destaque', 'publicado']
+        labels = {
+            'titulo': 'Titulo',
+            'categoria': 'Categoria',
+            'resumo': 'Resumo',
+            'conteudo': 'Conteudo',
+            'imagem': 'URL da imagem de capa',
+            'imagem_arquivo': 'Arquivo da imagem de capa',
+            'destaque': 'Definir como destaque',
+            'publicado': 'Publicar agora',
+        }
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex.: Como organizar sua semana'}),
+            'categoria': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex.: Produtividade'}),
+            'resumo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Resumo curto para os cards do blog'}),
+            'conteudo': forms.Textarea(attrs={'class': 'form-control', 'rows': 8, 'placeholder': 'Escreva o conteudo completo da postagem'}),
+            'imagem': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://...'}),
+            'imagem_arquivo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['destaque'].widget.attrs['class'] = 'form-check-input'
+        self.fields['publicado'].widget.attrs['class'] = 'form-check-input'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        imagem_url = cleaned_data.get('imagem')
+        imagem_arquivo = cleaned_data.get('imagem_arquivo')
+
+        if not imagem_url and not imagem_arquivo:
+            raise forms.ValidationError('Informe uma URL de imagem ou envie um arquivo para a capa.')
+
+        return cleaned_data

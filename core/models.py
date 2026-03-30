@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 from datetime import time, timedelta, datetime
 
 
@@ -80,3 +81,59 @@ class Agendamento(models.Model):
             'cancelado': 'secondary',
         }
         return cores.get(self.status, 'secondary')
+
+
+class PostagemBlog(models.Model):
+    titulo = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    categoria = models.CharField(max_length=80)
+    resumo = models.TextField()
+    conteudo = models.TextField()
+    imagem = models.URLField(blank=True, verbose_name='URL da imagem de capa')
+    imagem_arquivo = models.FileField(upload_to='blog/capas/', blank=True, verbose_name='Arquivo da imagem de capa')
+    autor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='postagens_blog')
+    destaque = models.BooleanField(default=False)
+    publicado = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-destaque', '-criado_em']
+        verbose_name = 'Postagem do blog'
+        verbose_name_plural = 'Postagens do blog'
+
+    def __str__(self):
+        return self.titulo
+
+    @property
+    def autor_nome(self):
+        if self.autor:
+            return self.autor.get_full_name() or self.autor.username
+        return 'Equipe BE-desk'
+
+    @property
+    def tempo_leitura(self):
+        total_palavras = len((self.conteudo or '').split())
+        minutos = max(1, round(total_palavras / 180))
+        return f'{minutos} min de leitura'
+
+    @property
+    def imagem_capa(self):
+        if self.imagem_arquivo:
+            return self.imagem_arquivo.url
+        return self.imagem
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.titulo) or 'post-blog'
+            slug = base_slug
+            contador = 2
+            while PostagemBlog.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base_slug}-{contador}'
+                contador += 1
+            self.slug = slug
+
+        if self.destaque:
+            PostagemBlog.objects.filter(destaque=True).exclude(pk=self.pk).update(destaque=False)
+
+        super().save(*args, **kwargs)

@@ -1,154 +1,807 @@
 {% extends 'core/base.html' %}
-{% block title %}Início — AgendaFácil{% endblock %}
+{% block title %}Inicio - BE-desk{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Tabela de horários -->
-    <div class="col-lg-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h5 class="mb-0"><i class="bi bi-table text-primary"></i> Tabela de Horários</h5>
-                <form method="get" class="d-flex align-items-center gap-2">
-                    <label class="mb-0 fw-semibold small">Data:</label>
-                    <input type="date" name="data" value="{{ data_selecionada|date:'Y-m-d' }}"
-                           class="form-control form-control-sm" style="width:160px" onchange="this.form.submit()">
+<style>
+    .landing-grid {
+        display: grid;
+        gap: 22px;
+    }
+
+    .hero-panel {
+        position: relative;
+        overflow: hidden;
+        min-height: 470px;
+        border-radius: 30px;
+        padding: 28px;
+        display: flex;
+        align-items: flex-end;
+        background:
+            linear-gradient(180deg, rgba(16, 42, 67, 0.1), rgba(16, 42, 67, 0.72)),
+            url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80') center/cover;
+        box-shadow: 0 24px 50px rgba(16, 42, 67, 0.16);
+    }
+
+    .hero-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg, rgba(129, 169, 105, 0.15), transparent 45%);
+        pointer-events: none;
+    }
+
+    .hero-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 640px;
+        color: #fff;
+    }
+
+    .hero-copy__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        margin-bottom: 18px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-copy h1 {
+        margin: 0;
+        font-size: clamp(3.2rem, 9vw, 6rem);
+        line-height: 0.95;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        text-transform: uppercase;
+    }
+
+    .hero-copy p {
+        max-width: 540px;
+        margin: 16px 0 0;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 1.03rem;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+    }
+
+    .hero-actions .btn {
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 700;
+    }
+
+    .hero-actions .btn-light {
+        background: rgba(255, 255, 255, 0.94);
+        color: #173042;
+        border: 0;
+    }
+
+    .hero-actions .btn-outline-light {
+        border-width: 1.5px;
+    }
+
+    .overview-row {
+        display: grid;
+        grid-template-columns: 1.2fr 0.9fr;
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    .glass-card,
+    .feature-card,
+    .service-card,
+    .table-shell,
+    .mini-card {
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        box-shadow: 0 18px 40px rgba(23, 48, 66, 0.08);
+    }
+
+    .glass-card {
+        padding: 28px;
+    }
+
+    .section-kicker {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5d7ea0;
+    }
+
+    .section-title {
+        margin: 10px 0 12px;
+        font-size: clamp(1.6rem, 3.1vw, 2.4rem);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
+    .section-text {
+        color: #668097;
+        max-width: 620px;
+        line-height: 1.7;
+    }
+
+    .social-inline {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .social-inline span {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #f2f6f8;
+        color: #244c73;
+    }
+
+    .feature-stack {
+        display: grid;
+        gap: 14px;
+    }
+
+    .feature-card {
+        display: grid;
+        grid-template-columns: 62px 1fr;
+        gap: 16px;
+        padding: 18px;
+        background: linear-gradient(135deg, rgba(93, 126, 160, 0.18), rgba(36, 76, 115, 0.11));
+    }
+
+    .feature-icon {
+        width: 62px;
+        height: 62px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        font-size: 1.65rem;
+        color: #244c73;
+        background: rgba(255, 255, 255, 0.88);
+    }
+
+    .feature-card h3 {
+        margin: 2px 0 6px;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .feature-card p {
+        margin: 0;
+        color: #5f7386;
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .mini-card {
+        padding: 18px;
+        text-align: center;
+    }
+
+    .mini-card i {
+        font-size: 1.25rem;
+        color: #244c73;
+    }
+
+    .mini-card strong {
+        display: block;
+        margin-top: 14px;
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+
+    .mini-card span {
+        display: block;
+        margin-top: 6px;
+        color: #708597;
+        font-size: 0.9rem;
+    }
+
+    .highlight-section {
+        padding: 24px;
+        border-radius: 30px;
+        background: linear-gradient(180deg, rgba(247, 249, 251, 0.94), rgba(240, 244, 247, 0.88));
+        border: 1px solid rgba(36, 76, 115, 0.08);
+    }
+
+    .cards-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+    }
+
+    .service-card {
+        position: relative;
+        min-height: 252px;
+        overflow: hidden;
+        padding: 18px;
+        display: flex;
+        align-items: flex-end;
+        color: #fff;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .service-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(9, 24, 38, 0.02), rgba(9, 24, 38, 0.82));
+    }
+
+    .service-card__content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .service-card__badge {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    .service-card h3 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .service-card p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+        line-height: 1.55;
+    }
+
+    .service-card.service-card--soft {
+        color: #173042;
+        background: linear-gradient(135deg, rgba(170, 183, 205, 0.96), rgba(223, 230, 238, 0.98));
+    }
+
+    .service-card.service-card--soft::before {
+        background: none;
+    }
+
+    .service-card.service-card--soft p {
+        color: #5b7186;
+    }
+
+    .table-shell {
+        overflow: hidden;
+    }
+
+    .table-shell__head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 24px 24px 12px;
+    }
+
+    .table-shell__head h2 {
+        margin: 6px 0 0;
+        font-size: 1.55rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+
+    .table-shell__head p {
+        margin: 6px 0 0;
+        color: #6b8194;
+    }
+
+    .table-shell__controls {
+        min-width: 220px;
+    }
+
+    .table-shell__controls label {
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #5d7ea0;
+        letter-spacing: 0.08em;
+    }
+
+    .table-shell__controls .form-control {
+        margin-top: 8px;
+        border: 1px solid rgba(36, 76, 115, 0.12);
+        border-radius: 16px;
+        padding: 12px 14px;
+        box-shadow: none;
+    }
+
+    .schedule-note {
+        margin: 0 24px 18px;
+        padding: 14px 18px;
+        border-radius: 18px;
+        color: #53708a;
+        background: rgba(93, 126, 160, 0.1);
+    }
+
+    .table-horarios {
+        margin: 0;
+    }
+
+    .table-horarios thead th {
+        padding: 14px 16px;
+        border: 0;
+        color: #244c73;
+        background: rgba(238, 243, 247, 0.96);
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .table-horarios td {
+        padding: 16px;
+        border-color: rgba(36, 76, 115, 0.06);
+        vertical-align: middle;
+    }
+
+    .table-horarios .btn {
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .recent-panel {
+        padding: 24px;
+    }
+
+    .recent-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .recent-item {
+        padding: 16px 18px;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #f6f9fb, #eef3f6);
+    }
+
+    .recent-item strong {
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .recent-item p {
+        margin: 6px 0 0;
+        color: #678095;
+        font-size: 0.92rem;
+    }
+
+    .cta-strip {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    .cta-card {
+        border-radius: 28px;
+        overflow: hidden;
+        min-height: 260px;
+        padding: 22px;
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        color: #fff;
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 18px 40px rgba(23, 48, 66, 0.08);
+    }
+
+    .cta-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(20, 38, 52, 0.1), rgba(20, 38, 52, 0.84));
+    }
+
+    .cta-card > div {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-card--soft {
+        color: #173042;
+        background: linear-gradient(135deg, rgba(176, 188, 209, 0.98), rgba(220, 228, 236, 0.96));
+    }
+
+    .cta-card--soft::before {
+        background: none;
+    }
+
+    .cta-card h3 {
+        margin: 0 0 8px;
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .cta-card p {
+        margin: 0 0 18px;
+        line-height: 1.6;
+        color: inherit;
+    }
+
+    .journey-steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .journey-step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(36, 76, 115, 0.08);
+    }
+
+    .journey-step span {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        font-weight: 800;
+        color: #244c73;
+        background: rgba(93, 126, 160, 0.14);
+    }
+
+    .journey-step h4 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .journey-step p {
+        margin: 0;
+        color: #698094;
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    @media (max-width: 1199.98px) {
+        .overview-row,
+        .cta-strip {
+            grid-template-columns: 1fr;
+        }
+
+        .cards-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .stats-row,
+        .journey-steps {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .table-shell__head {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .table-shell__controls {
+            min-width: 100%;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .hero-panel {
+            min-height: 420px;
+            padding: 22px;
+        }
+
+        .glass-card,
+        .recent-panel,
+        .highlight-section {
+            padding: 20px;
+        }
+
+        .cards-row,
+        .stats-row,
+        .journey-steps {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="landing-grid">
+    <section class="hero-panel">
+        <div class="hero-copy">
+            <span class="hero-copy__eyebrow"><i class="bi bi-stars"></i> Agenda premium para sua rotina</span>
+            <h1>Organize</h1>
+            <p>Uma pagina inicial inspirada na referencia, agora adaptada para o BE-desk com visual editorial, destaque para agendamentos e acesso rapido aos horarios disponiveis.</p>
+            <div class="hero-actions">
+                <a href="{% url 'novo_agendamento' %}" class="btn btn-light">Novo agendamento</a>
+                <a href="#agenda-do-dia" class="btn btn-outline-light">Ver agenda do dia</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="overview-row">
+        <div class="glass-card">
+            <span class="section-kicker">Por que escolher</span>
+            <h2 class="section-title">Sua agenda mais clara, bonita e pronta para funcionar todos os dias.</h2>
+            <p class="section-text">O painel principal agora combina uma primeira impressao mais forte com informacoes objetivas. Assim, voce encontra seus horarios, acessa seus agendamentos recentes e inicia uma nova reserva sem precisar navegar por varias telas.</p>
+            <div class="social-inline">
+                <span><i class="bi bi-calendar-check"></i></span>
+                <span><i class="bi bi-clock-history"></i></span>
+                <span><i class="bi bi-person-heart"></i></span>
+            </div>
+        </div>
+        <div class="feature-stack">
+            <article class="feature-card">
+                <div class="feature-icon"><i class="bi bi-grid-1x2"></i></div>
+                <div>
+                    <h3>Painel claro</h3>
+                    <p>Visual em blocos com navegacao simples para encontrar o que importa logo no topo.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon"><i class="bi bi-calendar2-plus"></i></div>
+                <div>
+                    <h3>Agendamento em um clique</h3>
+                    <p>Acoes principais destacadas para reduzir o caminho ate um novo horario.</p>
+                </div>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon"><i class="bi bi-headset"></i></div>
+                <div>
+                    <h3>Acompanhamento continuo</h3>
+                    <p>Status visiveis e blocos recentes ajudam a saber rapidamente o que esta pendente ou confirmado.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="stats-row">
+        <article class="mini-card">
+            <i class="bi bi-clock"></i>
+            <strong>{{ hora_inicio|time:"H:i" }} - {{ hora_fim|time:"H:i" }}</strong>
+            <span>Horario geral de atendimento</span>
+        </article>
+        <article class="mini-card">
+            <i class="bi bi-calendar3"></i>
+            <strong>{{ data_selecionada|date:"d/m/Y" }}</strong>
+            <span>Data atualmente destacada</span>
+        </article>
+        <article class="mini-card">
+            <i class="bi bi-list-check"></i>
+            <strong>{{ tabela|length }}</strong>
+            <span>Slots exibidos para consulta</span>
+        </article>
+        <article class="mini-card">
+            <i class="bi bi-collection"></i>
+            <strong>{{ meus_agendamentos|length }}</strong>
+            <span>Itens recentes no seu historico</span>
+        </article>
+    </section>
+
+    <section class="highlight-section">
+        <div class="d-flex justify-content-between align-items-start flex-column flex-lg-row gap-3">
+            <div>
+                <span class="section-kicker">Destaques do sistema</span>
+                <h2 class="section-title mb-0">Experiencia inspirada na referencia, mas pensada para agendamento.</h2>
+            </div>
+            <p class="section-text mb-0">Transformei os antigos blocos simples em cards visuais que ajudam a apresentar servicos, beneficios e acessos importantes com mais personalidade.</p>
+        </div>
+
+        <div class="cards-row">
+            <article class="service-card" style="background-image: url('https://images.unsplash.com/photo-1519494080410-f9aa8f52f12e?auto=format&fit=crop&w=900&q=80');">
+                <div class="service-card__content">
+                    <span class="service-card__badge">Agendamentos</span>
+                    <h3>Consultas organizadas</h3>
+                    <p>Escolha horarios e acompanhe o fluxo da sua agenda com mais previsibilidade.</p>
+                </div>
+            </article>
+            <article class="service-card" style="background-image: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80');">
+                <div class="service-card__content">
+                    <span class="service-card__badge">Painel pessoal</span>
+                    <h3>Historico a vista</h3>
+                    <p>Seus ultimos compromissos aparecem em uma area mais nobre da pagina inicial.</p>
+                </div>
+            </article>
+            <article class="service-card" style="background-image: url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80');">
+                <div class="service-card__content">
+                    <span class="service-card__badge">Confirmacoes</span>
+                    <h3>Status sem confusao</h3>
+                    <p>Cores, badges e hierarquia visual deixam claro o que esta livre, pendente ou confirmado.</p>
+                </div>
+            </article>
+            <article class="service-card service-card--soft">
+                <div class="service-card__content">
+                    <span class="service-card__badge" style="background: rgba(36, 76, 115, 0.1); color: #244c73;">Acesso rapido</span>
+                    <h3>Novo horario</h3>
+                    <p>Um bloco de chamada mais forte para iniciar um novo agendamento a qualquer momento.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="overview-row" id="agenda-do-dia">
+        <div class="table-shell">
+            <div class="table-shell__head">
+                <div>
+                    <span class="section-kicker">Agenda do dia</span>
+                    <h2>Consulte a tabela de horarios</h2>
+                    <p>Veja rapidamente os espacos livres e siga para o agendamento em poucos cliques.</p>
+                </div>
+                <form method="get" class="table-shell__controls">
+                    <label for="data-home">Escolha uma data</label>
+                    <input id="data-home" type="date" name="data" value="{{ data_selecionada|date:'Y-m-d' }}" class="form-control" onchange="this.form.submit()">
                 </form>
             </div>
-            <div class="card-body p-0">
-                <!-- Legenda de intervalos -->
-                <div class="alert alert-info m-3 mb-0 py-2 small">
-                    <i class="bi bi-info-circle"></i>
-                    <strong>Funcionamento:</strong> 07:00 – 18:00 &nbsp;|&nbsp;
-                    <strong>Intervalos bloqueados:</strong>
-                    08:20–08:50 &nbsp;·&nbsp; 12:00–13:00 (almoço) &nbsp;·&nbsp; 16:20–16:30
-                </div>
 
-                <div class="table-responsive mt-3">
-                    <table class="table table-bordered table-sm mb-0 table-horarios">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width:130px"><i class="bi bi-clock"></i> Horário</th>
-                                <th class="text-center">Situação</th>
-                                <th class="text-center" style="width:120px">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Linha de aviso de intervalo se for antes do primeiro slot -->
-                            {% for item in tabela %}
-                            {% with inicio=item.inicio %}
+            <div class="schedule-note">
+                <i class="bi bi-info-circle me-2"></i>
+                Funcionamento de <strong>{{ hora_inicio|time:"H:i" }}</strong> ate <strong>{{ hora_fim|time:"H:i" }}</strong>.
+                Intervalos bloqueados:
+                {% for intervalo in intervalos %}
+                    <strong>{{ intervalo.0|time:"H:i" }}-{{ intervalo.1|time:"H:i" }}</strong>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </div>
 
-                            {# Mostra bloco de intervalo ANTES do slot correspondente #}
-                            {% if inicio.hour == 8 and inicio.minute == 0 %}
-                            <tr class="slot-bloqueado">
-                                <td class="text-center fw-semibold">07:00 – 07:30<br>07:30 – 08:00<br>08:00 – 08:20</td>
-                                <td colspan="2" class="text-center">— funcionamento normal —</td>
-                            </tr>
-                            {% comment %}Essa linha só ilustra; os slots reais já estão no loop{% endcomment %}
-                            {% endif %}
-
-                            <tr class="{% if not item.livre %}{% if item.agendamento.status == 'aceito' %}slot-aceito{% elif item.agendamento.status == 'pendente' %}slot-pendente{% else %}slot-livre{% endif %}{% else %}slot-livre{% endif %}">
-                                <td class="text-center fw-semibold">
-                                    {{ item.inicio|time:"H:i" }} – {{ item.fim|time:"H:i" }}
-                                </td>
-                                <td class="text-center">
-                                    {% if item.livre %}
-                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Livre</span>
-                                    {% elif item.agendamento.status == 'pendente' %}
-                                        <span class="badge badge-pendente"><i class="bi bi-hourglass-split"></i> Pendente</span>
-                                        <br><small class="text-muted">{{ item.agendamento.usuario.get_full_name|default:item.agendamento.usuario.username }}</small>
-                                    {% elif item.agendamento.status == 'aceito' %}
-                                        <span class="badge badge-aceito"><i class="bi bi-calendar-check"></i> Confirmado</span>
-                                        <br><small class="text-muted">{{ item.agendamento.usuario.get_full_name|default:item.agendamento.usuario.username }}</small>
-                                    {% else %}
-                                        <span class="badge badge-cancelado">Cancelado</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    {% if item.livre %}
-                                        <a href="{% url 'novo_agendamento' %}?data={{ data_selecionada|date:'Y-m-d' }}&hora={{ item.inicio|time:'H:i' }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-plus"></i> Agendar
-                                        </a>
-                                    {% else %}
-                                        —
-                                    {% endif %}
-                                </td>
-                            </tr>
-
-                            {# Separador visual de intervalos bloqueados #}
-                            {% if inicio.hour == 8 and inicio.minute == 20 %}
-                            <tr class="slot-bloqueado">
-                                <td class="text-center text-muted">08:20 – 08:50</td>
-                                <td colspan="2" class="text-center text-muted"><i class="bi bi-cup-hot"></i> Intervalo</td>
-                            </tr>
-                            {% elif inicio.hour == 12 and inicio.minute == 0 %}
-                            <tr class="slot-bloqueado">
-                                <td class="text-center text-muted">12:00 – 13:00</td>
-                                <td colspan="2" class="text-center text-muted"><i class="bi bi-egg-fried"></i> Almoço</td>
-                            </tr>
-                            {% elif inicio.hour == 16 and inicio.minute == 20 %}
-                            <tr class="slot-bloqueado">
-                                <td class="text-center text-muted">16:20 – 16:30</td>
-                                <td colspan="2" class="text-center text-muted"><i class="bi bi-cup-hot"></i> Intervalo</td>
-                            </tr>
-                            {% endif %}
-
-                            {% endwith %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-horarios align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 170px;">Horario</th>
+                            <th class="text-center">Situacao</th>
+                            <th class="text-center" style="width: 150px;">Acao</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in tabela %}
+                        <tr class="{% if not item.livre %}{% if item.agendamento.status == 'aceito' %}slot-aceito{% elif item.agendamento.status == 'pendente' %}slot-pendente{% else %}slot-livre{% endif %}{% else %}slot-livre{% endif %}">
+                            <td class="text-center fw-semibold">
+                                {{ item.inicio|time:"H:i" }} - {{ item.fim|time:"H:i" }}
+                            </td>
+                            <td class="text-center">
+                                {% if item.livre %}
+                                    <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-3 py-2">Livre</span>
+                                {% elif item.agendamento.status == 'pendente' %}
+                                    <span class="badge badge-pendente">Pendente</span>
+                                    <div class="small text-muted mt-1">{{ item.agendamento.usuario.get_full_name|default:item.agendamento.usuario.username }}</div>
+                                {% elif item.agendamento.status == 'aceito' %}
+                                    <span class="badge badge-aceito">Confirmado</span>
+                                    <div class="small text-muted mt-1">{{ item.agendamento.usuario.get_full_name|default:item.agendamento.usuario.username }}</div>
+                                {% else %}
+                                    <span class="badge badge-cancelado">{{ item.agendamento.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if item.livre %}
+                                    <a href="{% url 'novo_agendamento' %}?data={{ data_selecionada|date:'Y-m-d' }}&hora={{ item.inicio|time:'H:i' }}" class="btn btn-outline-primary btn-sm px-3">
+                                        Agendar
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Indisponivel</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <!-- Sidebar: Meus agendamentos recentes -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-clock-history text-primary"></i> Meus Últimos Agendamentos</h6>
-            </div>
-            <div class="card-body p-0">
-                {% if meus_agendamentos %}
-                <ul class="list-group list-group-flush">
-                    {% for ag in meus_agendamentos %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <div class="fw-semibold">{{ ag.data|date:"d/m/Y" }}</div>
-                                <small class="text-muted">{{ ag.hora_inicio|time:"H:i" }} – {{ ag.hora_fim|time:"H:i" }}</small>
-                            </div>
-                            <span class="badge badge-{{ ag.status }}">{{ ag.get_status_display }}</span>
-                        </div>
-                        {% if ag.descricao %}
-                        <small class="text-muted d-block mt-1">{{ ag.descricao|truncatechars:50 }}</small>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <div class="text-center text-muted py-4">
-                    <i class="bi bi-calendar-x fs-2"></i>
-                    <p class="mb-0 mt-2 small">Nenhum agendamento ainda.</p>
-                </div>
-                {% endif %}
-            </div>
+        <aside class="glass-card recent-panel">
+            <span class="section-kicker">Meu painel</span>
+            <h2 class="section-title">Ultimos agendamentos</h2>
+            <p class="section-text">Uma coluna lateral no estilo da referencia, mas conectada aos dados reais do seu usuario.</p>
+
             {% if meus_agendamentos %}
-            <div class="card-footer bg-white text-center">
-                <a href="{% url 'meus_agendamentos' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            <div class="recent-list">
+                {% for ag in meus_agendamentos %}
+                <article class="recent-item">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <strong>{{ ag.data|date:"d/m/Y" }}</strong>
+                            <p>{{ ag.hora_inicio|time:"H:i" }} - {{ ag.hora_fim|time:"H:i" }}</p>
+                        </div>
+                        <span class="badge badge-{{ ag.status }}">{{ ag.get_status_display }}</span>
+                    </div>
+                    {% if ag.descricao %}
+                    <p class="mt-2 mb-0">{{ ag.descricao|truncatechars:68 }}</p>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'meus_agendamentos' %}" class="pill-button pill-button-muted">Ver todos os agendamentos</a>
+            </div>
+            {% else %}
+            <div class="recent-item mt-3">
+                <strong>Nenhum agendamento ainda</strong>
+                <p>Seu historico vai aparecer aqui assim que voce fizer a primeira reserva.</p>
             </div>
             {% endif %}
-        </div>
+        </aside>
+    </section>
 
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <i class="bi bi-plus-circle-fill text-primary fs-1"></i>
-                <h6 class="mt-2">Fazer novo agendamento</h6>
-                <a href="{% url 'novo_agendamento' %}" class="btn btn-primary btn-sm mt-1">
-                    <i class="bi bi-calendar-plus"></i> Agendar Agora
-                </a>
+    <section class="cta-strip">
+        <article class="cta-card cta-card--soft">
+            <div>
+                <span class="section-kicker">Acesso principal</span>
+                <h3>Crie um novo agendamento agora</h3>
+                <p>Use este bloco como chamada principal da pagina inicial, no mesmo espirito dos cards largos da referencia visual.</p>
+                <a href="{% url 'novo_agendamento' %}" class="pill-button pill-button-primary">Iniciar agendamento</a>
             </div>
+        </article>
+        <article class="cta-card" style="background-image: url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=900&q=80');">
+            <div>
+                <span class="service-card__badge">Perfil</span>
+                <h3>Atualize seus dados</h3>
+                <p>Deixe seu cadastro pronto para tornar futuras reservas ainda mais rapidas.</p>
+            </div>
+        </article>
+        <article class="cta-card" style="background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80');">
+            <div>
+                <span class="service-card__badge">Fluxo simples</span>
+                <h3>Acompanhe cada etapa</h3>
+                <p>Solicite, aguarde confirmacao e acompanhe tudo direto pelo painel inicial.</p>
+            </div>
+        </article>
+    </section>
+
+    <section class="glass-card">
+        <span class="section-kicker">Como funciona</span>
+        <h2 class="section-title">Agendar ficou tao simples quanto 1-2-3.</h2>
+        <div class="journey-steps mt-4">
+            <article class="journey-step">
+                <span>1</span>
+                <div>
+                    <h4>Escolha a data</h4>
+                    <p>Selecione o dia que voce deseja visualizar para carregar os horarios disponiveis.</p>
+                </div>
+            </article>
+            <article class="journey-step">
+                <span>2</span>
+                <div>
+                    <h4>Encontre um slot</h4>
+                    <p>Use a tabela com destaque visual para localizar um horario livre sem esforco.</p>
+                </div>
+            </article>
+            <article class="journey-step">
+                <span>3</span>
+                <div>
+                    <h4>Confirme o pedido</h4>
+                    <p>Abra o fluxo de agendamento e acompanhe depois o status no seu painel pessoal.</p>
+                </div>
+            </article>
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}

@@ -1,0 +1,392 @@
+{% extends 'core/base.html' %}
+{% block title %}Blog - BE-desk{% endblock %}
+
+{% block content %}
+<style>
+    .blog-shell {
+        display: grid;
+        gap: 22px;
+    }
+
+    .blog-hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 380px;
+        padding: 30px;
+        border-radius: 30px;
+        display: flex;
+        align-items: flex-end;
+        background:
+            linear-gradient(180deg, rgba(8, 24, 38, 0.08), rgba(8, 24, 38, 0.82)),
+            url('{{ post_destaque.imagem_capa }}') center/cover;
+        box-shadow: 0 24px 48px rgba(23, 48, 66, 0.14);
+    }
+
+    .blog-hero__content {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
+        color: #fff;
+    }
+
+    .blog-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .blog-hero h1 {
+        margin: 18px 0 14px;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        line-height: 0.95;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+    }
+
+    .blog-hero p {
+        max-width: 560px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .blog-hero__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 22px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.92rem;
+    }
+
+    .blog-grid {
+        display: grid;
+        grid-template-columns: 1.45fr 0.8fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .blog-panel,
+    .blog-sidebar-card,
+    .blog-post {
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        box-shadow: 0 18px 40px rgba(23, 48, 66, 0.08);
+    }
+
+    .blog-panel,
+    .blog-sidebar-card {
+        padding: 24px;
+    }
+
+    .section-kicker {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #5d7ea0;
+    }
+
+    .section-title {
+        margin: 10px 0 12px;
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: #173042;
+    }
+
+    .section-text {
+        color: #668097;
+        line-height: 1.7;
+    }
+
+    .blog-list {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .blog-post {
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 250px 1fr;
+    }
+
+    .blog-post__image {
+        min-height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .blog-post__body {
+        padding: 22px;
+    }
+
+    .blog-post__body h3 {
+        margin: 10px 0 10px;
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: #173042;
+    }
+
+    .blog-post__body p {
+        margin: 0;
+        color: #688094;
+        line-height: 1.65;
+    }
+
+    .blog-post__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 16px;
+        color: #597286;
+        font-size: 0.9rem;
+    }
+
+    .blog-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        color: #244c73;
+        font-weight: 800;
+    }
+
+    .category-list,
+    .newsletter-points {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .category-pill {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #f5f8fa, #edf3f6);
+        color: #244c73;
+        font-weight: 700;
+    }
+
+    .newsletter-points div {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(93, 126, 160, 0.1);
+        color: #5f788d;
+    }
+
+    .blog-cta {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 18px;
+        border-radius: 999px;
+        color: #fff;
+        font-weight: 800;
+        background: linear-gradient(135deg, #244c73, #102a43);
+        box-shadow: 0 12px 24px rgba(16, 42, 67, 0.18);
+    }
+
+    .blog-bottom {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .blog-mini {
+        padding: 22px;
+        border-radius: 26px;
+        color: #fff;
+        min-height: 220px;
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 18px 40px rgba(23, 48, 66, 0.08);
+    }
+
+    .blog-mini::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(10, 25, 39, 0.08), rgba(10, 25, 39, 0.84));
+    }
+
+    .blog-mini > div {
+        position: relative;
+        z-index: 1;
+    }
+
+    .blog-mini h3 {
+        margin: 10px 0 8px;
+        font-size: 1.22rem;
+        font-weight: 800;
+    }
+
+    .blog-mini p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.6;
+    }
+
+    @media (max-width: 1199.98px) {
+        .blog-grid,
+        .blog-bottom {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .blog-hero {
+            min-height: 320px;
+            padding: 22px;
+        }
+
+        .blog-post {
+            grid-template-columns: 1fr;
+        }
+
+        .blog-post__image {
+            min-height: 220px;
+        }
+    }
+</style>
+
+<div class="blog-shell">
+    {% if post_destaque %}
+    <section class="blog-hero">
+        <div class="blog-hero__content">
+            <span class="blog-chip"><i class="bi bi-journal-richtext"></i> Blog BE-desk</span>
+            <h1>{{ post_destaque.titulo }}</h1>
+            <p>{{ post_destaque.resumo }}</p>
+            <div class="blog-hero__meta">
+                <span><i class="bi bi-stars me-1"></i>Artigo em destaque</span>
+                <span><i class="bi bi-clock me-1"></i>{{ post_destaque.tempo_leitura }}</span>
+                <span><i class="bi bi-person me-1"></i>{{ post_destaque.autor_nome }}</span>
+            </div>
+        </div>
+    </section>
+    {% else %}
+    <section class="blog-panel">
+        <span class="section-kicker">Blog BE-desk</span>
+        <h1 class="section-title">Nenhuma postagem publicada ainda.</h1>
+        <p class="section-text mb-0">Use o painel administrativo para criar o primeiro artigo e ele aparecera aqui automaticamente.</p>
+    </section>
+    {% endif %}
+
+    <section class="blog-grid">
+        <div class="blog-panel">
+            <span class="section-kicker">Ultimos artigos</span>
+            <h2 class="section-title">Conteudo pensado para quem quer atender melhor e se organizar com mais clareza.</h2>
+            <p class="section-text">As postagens abaixo sao carregadas do banco de dados e podem ser criadas pelo painel administrativo do sistema.</p>
+
+            {% if posts %}
+            <div class="blog-list">
+                {% for post in posts %}
+                <article class="blog-post">
+                    <div class="blog-post__image" style="background-image: url('{% if post.imagem_capa %}{{ post.imagem_capa }}{% elif post_destaque and post_destaque.imagem_capa %}{{ post_destaque.imagem_capa }}{% else %}https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80{% endif %}');"></div>
+                    <div class="blog-post__body">
+                        <span class="blog-chip" style="background: rgba(93, 126, 160, 0.12); color: #244c73;">{{ post.categoria }}</span>
+                        <h3>{{ post.titulo }}</h3>
+                        <p>{{ post.resumo }}</p>
+                        <div class="blog-post__meta">
+                            <span><i class="bi bi-clock me-1"></i>{{ post.tempo_leitura }}</span>
+                            <span><i class="bi bi-person me-1"></i>{{ post.autor_nome }}</span>
+                        </div>
+                        <div class="blog-link">Publicado em {{ post.criado_em|date:"d/m/Y" }}</div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="mt-4 text-muted">Nenhum artigo publicado no momento.</div>
+            {% endif %}
+        </div>
+
+        <aside class="d-grid gap-3">
+            <div class="blog-sidebar-card">
+                <span class="section-kicker">Categorias</span>
+                <h2 class="section-title">Navegue pelos temas</h2>
+                <div class="category-list">
+                    {% for categoria in categorias_blog %}
+                    <div class="category-pill">
+                        <span>{{ categoria }}</span>
+                        <i class="bi bi-arrow-up-right"></i>
+                    </div>
+                    {% empty %}
+                    <div class="category-pill">
+                        <span>Sem categorias ainda</span>
+                        <i class="bi bi-dash"></i>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="blog-sidebar-card">
+                <span class="section-kicker">Newsletter</span>
+                <h2 class="section-title">Atualizacoes com foco em rotina e atendimento</h2>
+                <p class="section-text">Esse bloco funciona como area institucional para divulgar novidades, materiais e recomendacoes de uso do sistema.</p>
+                <div class="newsletter-points">
+                    <div><i class="bi bi-check2-circle me-2"></i>Dicas praticas para organizar a agenda</div>
+                    <div><i class="bi bi-check2-circle me-2"></i>Fluxos para reduzir faltas e atrasos</div>
+                    <div><i class="bi bi-check2-circle me-2"></i>Boas praticas de atendimento</div>
+                </div>
+                <a href="{% url 'novo_agendamento' %}" class="blog-cta">Agendar agora</a>
+            </div>
+        </aside>
+    </section>
+
+    <section class="blog-bottom">
+        {% if posts %}
+        {% for post in posts|slice:":3" %}
+        <article class="blog-mini" style="background-image: url('{% if post.imagem_capa %}{{ post.imagem_capa }}{% else %}https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=900&q=80{% endif %}');">
+            <div>
+                <span class="blog-chip">{{ post.categoria }}</span>
+                <h3>{{ post.titulo }}</h3>
+                <p>{{ post.resumo|truncatechars:120 }}</p>
+            </div>
+        </article>
+        {% endfor %}
+        {% else %}
+        <article class="blog-mini" style="background-image: url('https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=900&q=80');">
+            <div>
+                <span class="blog-chip">Planejamento</span>
+                <h3>Como manter espacos livres sem perder produtividade</h3>
+                <p>Equilibrio entre disponibilidade e foco para evitar uma agenda sempre lotada ou confusa.</p>
+            </div>
+        </article>
+        <article class="blog-mini" style="background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80');">
+            <div>
+                <span class="blog-chip">Comunicacao</span>
+                <h3>Mensagens claras fazem diferenca no comparecimento</h3>
+                <p>Confirmacoes objetivas e lembretes bem posicionados fortalecem a experiencia do cliente.</p>
+            </div>
+        </article>
+        <article class="blog-mini" style="background-image: url('https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80');">
+            <div>
+                <span class="blog-chip">Crescimento</span>
+                <h3>Transforme organizacao em percepcao de valor</h3>
+                <p>Um atendimento pontual e previsivel transmite profissionalismo antes mesmo do encontro acontecer.</p>
+            </div>
+        </article>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
